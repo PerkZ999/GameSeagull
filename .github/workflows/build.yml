@@ -22,10 +22,16 @@ jobs:
         run: |
           export THEOS=$HOME/theos
           export CI=true
-          # --recursive pulls theos + vendor + the patched sdks submodule (incl. iPhoneOS14.5.sdk)
           git clone --recursive https://github.com/theos/theos.git "$THEOS"
-          ls "$THEOS/sdks" | grep -i sdk | head -3 || echo "[!] no SDKs found in submodule"
-          # installer: adjusts fakeroot, downloads the Linux iOS toolchain, finishes setup
+          # place the patched SDK deterministically (install-sdk's GitHub API lookup is rate-limit flaky on shared CI IPs)
+          rm -rf "$THEOS/sdks"
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/theos/sdks.git "$THEOS/sdks-repo"
+          cd "$THEOS/sdks-repo" && git sparse-checkout set iPhoneOS14.5.sdk && cd -
+          mkdir -p "$THEOS/sdks"
+          mv "$THEOS/sdks-repo/iPhoneOS14.5.sdk" "$THEOS/sdks/"
+          rm -rf "$THEOS/sdks-repo"
+          ls "$THEOS/sdks"
+          # installer: detects existing theos + sdks, downloads the Linux iOS toolchain, finishes setup
           bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
           ls "$THEOS/toolchain/linux/iphone/bin/clang" && echo "[+] toolchain OK"
 
