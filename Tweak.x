@@ -21,6 +21,8 @@ bool autoCupPong;
 bool revealWords;
 bool autoEnterWords;
 bool seeEnemyShips;
+bool predictionLines;
+bool findShot;
 
 DartsScene *sharedInstance;
 
@@ -82,6 +84,10 @@ DartsScene *sharedInstance;
 	if (alwaysMoveCueBall) {
 		[self setValue:@(true) forKey:@"move_white"];
 	}
+
+	if (predictionLines || findShot) {
+		GSPoolUpdate((SKScene *)self);
+	}
 }
 %end
 
@@ -106,6 +112,10 @@ DartsScene *sharedInstance;
 	if (alwaysMoveCueBall) {
 		[self setValue:@(true) forKey:@"move_white"];
 	}
+
+	if (predictionLines || findShot) {
+		GSPoolUpdate((SKScene *)self);
+	}
 }
 %end
 
@@ -129,6 +139,10 @@ DartsScene *sharedInstance;
 	
 	if (alwaysMoveCueBall) {
 		[self setValue:@(true) forKey:@"move_white"];
+	}
+
+	if (predictionLines || findShot) {
+		GSPoolUpdate((SKScene *)self);
 	}
 }
 %end
@@ -599,6 +613,8 @@ DartsScene *sharedInstance;
 	revealWords = boolForKey(@"kRevealWords");
 	autoEnterWords = boolForKey(@"kAutoEnterWords");
 	seeEnemyShips = boolForKey(@"kSeeEnemies");
+	predictionLines = boolForKey(@"kPredictionLines");
+	findShot = boolForKey(@"kFindShot");
 
 	if (extendLines) {
 		uint32_t patch = 0x52a9cdc8;

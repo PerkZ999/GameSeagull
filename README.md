@@ -12,6 +12,13 @@ cd GameSeagull
 ```
 
 # Changelog
+## [2.2](https://github.com/donato-fiore/GameSeagull/releases/tag/2.2) - 2026-10-30
+### Added:
+- **8 Ball Prediction Lines** — 8 Ball Pool style aiming guide: cue ball path with cushion bounces, ghost ball at contact, object ball line into the pocket (yellow ring when it pots), and the cue ball deflection line
+- **8 Ball Find Shot** — on-screen button that scans every ball and pocket, draws the best makeable shot (ball number, pocket and cut angle) and auto-aims the cue for you
+
+Works in 8 ball, 9 ball and the third pool game mode.
+
 ## [2.1](https://github.com/donato-fiore/GameSeagull/releases/tag/2.1) - 2024-02-01
 ### Updates:
 - Fixed some icons not showing on < iOS 16

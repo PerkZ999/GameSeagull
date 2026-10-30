@@ -1,0 +1,55 @@
+name: Build GameSeagull
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          brew install ldid dpkg
+
+      - name: Setup Theos
+        run: |
+          export THEOS=$HOME/theos
+          git clone --recursive --depth 1 https://github.com/theos/theos.git "$THEOS"
+
+          # one SDK is enough (sparse checkout keeps CI fast)
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/theos/sdks.git "$THEOS/sdks"
+          cd "$THEOS/sdks" && git sparse-checkout set iPhoneOS14.5.sdk && cd -
+
+          # Cephei (tweak + prefs link it)
+          curl -sL https://api.github.com/repos/hbang/libcephei/releases/latest \
+            | grep -Eo 'https://[^"]+\.deb' | head -1 | xargs curl -sL -o /tmp/cephei.deb
+          mkdir -p /tmp/cephei && dpkg-deb -x /tmp/cephei.deb /tmp/cephei
+          mkdir -p "$THEOS/lib" "$THEOS/include"
+          cp -R /tmp/cephei/usr/lib/. "$THEOS/lib/" 2>/dev/null || true
+          cp -R /tmp/cephei/var/jb/usr/lib/. "$THEOS/lib/" 2>/dev/null || true
+          cp -R /tmp/cephei/usr/include/. "$THEOS/include/" 2>/dev/null || true
+          cp -R /tmp/cephei/var/jb/usr/include/. "$THEOS/include/" 2>/dev/null || true
+          find "$THEOS/lib" -name "*.framework" -maxdepth 1 || true
+
+      - name: Build .deb packages (rootful + rootless)
+        run: |
+          export THEOS=$HOME/theos
+          ./build_release.sh
+
+      - name: Build TrollStore IPA
+        run: |
+          export THEOS=$HOME/theos
+          ./make_ipa.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameSeagull-2.2
+          path: |
+            build/*.deb
+            GameSeagull-2.2.ipa
+          if-no-files-found: error

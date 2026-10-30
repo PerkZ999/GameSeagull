@@ -182,6 +182,36 @@
 		</dict>
 		<dict>
 			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>com.fiore.gameseagull.prefs</string>
+			<key>key</key>
+			<string>kPredictionLines</string>
+			<key>label</key>
+			<string>Prediction Lines</string>
+			<key>iconImageSystem</key>
+			<dict>
+				<key>name</key>
+				<string>arrow.triangle.branch</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSwitchCell</string>
+			<key>defaults</key>
+			<string>com.fiore.gameseagull.prefs</string>
+			<key>key</key>
+			<string>kFindShot</string>
+			<key>label</key>
+			<string>Find Shot Button</string>
+			<key>iconImageSystem</key>
+			<dict>
+				<key>name</key>
+				<string>wand.and.rays</string>
+			</dict>
+		</dict>
+		<dict>
+			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
 			<string>Darts</string>

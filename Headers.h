@@ -4,15 +4,33 @@
 @interface ArcheryView : NSObject
 @end
 
+@interface PoolBall : NSObject
+@property (nonatomic, retain) SKSpriteNode *sprite;
+@property (nonatomic, retain) SKSpriteNode *shade;
+@property (nonatomic, retain) SKSpriteNode *shadow;
+@property (nonatomic) int num;
+@property (nonatomic) int type;
+@property (nonatomic) bool destroyed;
+@property (nonatomic) bool setup;
+- (bool)isBlack;
+- (bool)isNine;
+- (bool)isStripes;
+- (bool)isSolid;
+@end
+
+@interface PoolBalls : NSObject
+@property (nonatomic, retain) NSMutableArray *balls;
+@end
+
 @interface PoolScene : SKScene
 @property (nonatomic) int currentColorHue;
 @end
 
-@interface PoolScene2 : NSObject
+@interface PoolScene2 : SKScene
 @property (nonatomic) int currentColorHue;
 @end
 
-@interface PoolScene3 : NSObject
+@interface PoolScene3 : SKScene
 @property (nonatomic) int currentColorHue;
 @end
 
