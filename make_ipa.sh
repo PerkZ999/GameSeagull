@@ -33,12 +33,23 @@ unzip -q "$BASE_IPA" -d "$WORK/ipa"
 OLD_DYLIB=$(find "$WORK/ipa" -iname "gameseagull*.dylib" | head -1)
 [ -n "$OLD_DYLIB" ] || { echo "[-] gameseagull dylib not found inside IPA (is this a GameSeagull IPA?)"; exit 1; }
 
-# preserve the original install name so existing references keep working
+# preserve the original install name so existing references keep working (FAT-aware)
 LC_ID=$(python3 - "$OLD_DYLIB" <<'EOF'
 import struct, sys
 data = open(sys.argv[1], 'rb').read()
-magic, cputype, cpusub, filetype, ncmds = struct.unpack_from('<IIIII', data, 0)
-off = 32
+base = 0
+if struct.unpack_from('<I', data, 0)[0] == 0xBEBAFECA:  # fat binary
+    n = struct.unpack_from('>I', data, 4)[0]
+    base = None
+    for i in range(n):
+        off = 8 + i * 20
+        cputype, _, _, byteoff = struct.unpack_from('>IIII', data, off)
+        if base is None or cputype == 0x0100000C:
+            base = byteoff
+        if cputype == 0x0100000C:
+            break
+ncmds = struct.unpack_from('<I', data, base + 16)[0]
+off = base + 32
 for _ in range(ncmds):
     cmd, cmdsize = struct.unpack_from('<II', data, off)
     if cmd == 0xd:  # LC_ID_DYLIB
@@ -52,28 +63,34 @@ EOF
 echo "[+] swapping in $NEW_DYLIB (install name: $LC_ID)"
 cp -f "$NEW_DYLIB" "$OLD_DYLIB"
 if [ -n "$LC_ID" ]; then
-	# rewrite LC_ID_DYLIB in place (null-padded) when the new name fits; harmless to skip otherwise
+	# rewrite LC_ID_DYLIB in place (null-padded) in every slice when the new name fits; harmless to skip otherwise
 	python3 - "$OLD_DYLIB" "$LC_ID" <<'EOF'
 import struct, sys
 path, want = sys.argv[1], sys.argv[2].encode()
 data = bytearray(open(path, 'rb').read())
-magic, cputype, cpusub, filetype, ncmds = struct.unpack_from('<IIIII', data, 0)
-off = 32
-for _ in range(ncmds):
-    cmd, cmdsize = struct.unpack_from('<II', data, off)
-    if cmd == 0xd:  # LC_ID_DYLIB
-        name_off = struct.unpack_from('<I', data, off + 8)[0]
-        end = data.find(b'\x00', off + name_off)
-        old = data[off + name_off:end]
-        if len(want) <= len(old):
-            data[off + name_off:off + name_off + len(want)] = want
-            data[off + name_off + len(want):end] = b'\x00' * (len(old) - len(want))
-            open(path, 'wb').write(bytes(data))
-            print(f'[+] install name patched in place')
-        else:
-            print(f'[!] new install name longer than old; leaving as-is')
-        break
-    off += cmdsize
+magic = struct.unpack_from('<I', data, 0)[0]
+slices = [0]
+if magic == 0xBEBAFECA:  # fat binary: patch every slice
+    n = struct.unpack_from('>I', data, 4)[0]
+    slices = [struct.unpack_from('>I', data, 8 + i * 20 + 8)[0] for i in range(n)]
+patched = 0
+for base in slices:
+    ncmds = struct.unpack_from('<I', data, base + 16)[0]
+    off = base + 32
+    for _ in range(ncmds):
+        cmd, cmdsize = struct.unpack_from('<II', data, off)
+        if cmd == 0xd:  # LC_ID_DYLIB
+            name_off = struct.unpack_from('<I', data, off + 8)[0]
+            end = data.find(b'\x00', off + name_off)
+            old = data[off + name_off:end]
+            if len(want) <= len(old):
+                data[off + name_off:off + name_off + len(want)] = want
+                data[off + name_off + len(want):end] = b'\x00' * (len(old) - len(want))
+                patched += 1
+            break
+        off += cmdsize
+open(path, 'wb').write(bytes(data))
+print(f'[+] install name patched in {patched} slice(s)' if patched else '[!] install name left as-is (still loads fine by path)')
 EOF
 fi
 
