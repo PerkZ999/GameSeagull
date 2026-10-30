@@ -348,7 +348,7 @@ typedef struct {
 	BOOL valid;
 } GSPoolTransform;
 
-static GSPoolTransform GSPoolCalibrate(id scene, NSArray *balls, CGPoint cueB2, SKSpriteNode *cueSprite) {
+static GSPoolTransform GSPoolCalibrate(SKScene *scene, NSArray *balls, CGPoint cueB2, SKSpriteNode *cueSprite) {
 	GSPoolTransform t;
 	t.k = 0; t.o = CGPointZero; t.valid = NO;
 
@@ -526,13 +526,13 @@ static SKShapeNode *GSPoolOverlayShape(SKScene *scene, NSString *name, UIColor *
 	node.glowWidth = glow;
 	node.strokeColor = color;
 	node.fillColor = [UIColor clearColor];
-	node.isHidden = YES;
+	node.hidden = YES;
 	return node;
 }
 
 static void GSPoolSetPolyline(SKShapeNode *node, const CGPoint *pts, int count) {
 	if (count < 2) {
-		node.isHidden = YES;
+		node.hidden = YES;
 		return;
 	}
 	CGMutablePathRef path = CGPathCreateMutable();
@@ -540,24 +540,24 @@ static void GSPoolSetPolyline(SKShapeNode *node, const CGPoint *pts, int count) 
 	for (int i = 1; i < count; i++) CGPathAddLineToPoint(path, NULL, pts[i].x, pts[i].y);
 	node.path = path;
 	CGPathRelease(path);
-	node.isHidden = NO;
+	node.hidden = NO;
 }
 
 static void GSPoolSetCircle(SKShapeNode *node, CGPoint center, CGFloat radius) {
 	if (radius <= 0 || isnan(center.x)) {
-		node.isHidden = YES;
+		node.hidden = YES;
 		return;
 	}
 	CGMutablePathRef path = CGPathCreateMutable();
 	CGPathAddEllipseInRect(path, NULL, CGRectMake(center.x - radius, center.y - radius, radius * 2, radius * 2));
 	node.path = path;
 	CGPathRelease(path);
-	node.isHidden = NO;
+	node.hidden = NO;
 }
 
 static void GSPoolSetSegments(SKShapeNode *node, const CGPoint *flat, int segCount) {
 	if (segCount < 1) {
-		node.isHidden = YES;
+		node.hidden = YES;
 		return;
 	}
 	CGMutablePathRef path = CGPathCreateMutable();
@@ -567,7 +567,7 @@ static void GSPoolSetSegments(SKShapeNode *node, const CGPoint *flat, int segCou
 	}
 	node.path = path;
 	CGPathRelease(path);
-	node.isHidden = NO;
+	node.hidden = NO;
 }
 
 static SKLabelNode *GSPoolLabel(SKScene *scene) {
@@ -581,7 +581,7 @@ static SKLabelNode *GSPoolLabel(SKScene *scene) {
 		node.horizontalAlignmentMode = SKLabelHorizontalAlignmentModeCenter;
 		[scene addChild:node];
 	}
-	node.isHidden = YES;
+	node.hidden = YES;
 	return node;
 }
 
@@ -685,10 +685,10 @@ static void GSPoolHideAll(SKScene *scene) {
 	for (NSString *name in @[@"gs_pred_cue", @"gs_pred_ghost", @"gs_pred_obj", @"gs_pred_defl", @"gs_pred_pocket",
 							 @"gs_best_cue", @"gs_best_ghost", @"gs_best_obj", @"gs_best_target", @"gs_best_pocket"]) {
 		SKNode *n = [scene childNodeWithName:name];
-		if (n) n.isHidden = YES;
+		if (n) n.hidden = YES;
 	}
 	SKNode *l = [scene childNodeWithName:@"gs_best_label"];
-	if (l) l.isHidden = YES;
+	if (l) l.hidden = YES;
 }
 
 void GSPoolUpdate(SKScene *scene) {
@@ -831,13 +831,13 @@ void GSPoolUpdate(SKScene *scene) {
 						  GSPoolPocketName(best.pocket, cushion),
 						  (long)llround(best.cutCos * 100)];
 			label.position = CGPointMake(scene.frame.size.width / 2, scene.frame.size.height - 56);
-			label.isHidden = NO;
+			label.hidden = NO;
 		} else {
 			GSPoolSetPolyline(GSPoolOverlayShape(scene, @"gs_best_cue", [UIColor cyanColor], 3, 4), NULL, 0);
 			SKLabelNode *label = GSPoolLabel(scene);
 			label.text = @"No clear shot";
 			label.position = CGPointMake(scene.frame.size.width / 2, scene.frame.size.height - 56);
-			label.isHidden = NO;
+			label.hidden = NO;
 		}
 	} else {
 		GSPoolSetPolyline(GSPoolOverlayShape(scene, @"gs_best_cue", [UIColor cyanColor], 3, 4), NULL, 0);
@@ -845,7 +845,7 @@ void GSPoolUpdate(SKScene *scene) {
 		GSPoolSetPolyline(GSPoolOverlayShape(scene, @"gs_best_obj", [UIColor colorWithRed:0.1 green:0.9 blue:0.3 alpha:1], 3, 4), NULL, 0);
 		GSPoolSetCircle(GSPoolOverlayShape(scene, @"gs_best_target", [UIColor cyanColor], 2, 3), CGPointZero, 0);
 		GSPoolSetCircle(GSPoolOverlayShape(scene, @"gs_best_pocket", [UIColor colorWithRed:1 green:0.85 blue:0.1 alpha:1], 2.5, 4), CGPointZero, 0);
-		GSPoolLabel(scene).isHidden = YES;
+		GSPoolLabel(scene).hidden = YES;
 	}
 
 	// ---- live aim prediction ----
