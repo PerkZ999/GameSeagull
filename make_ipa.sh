@@ -34,11 +34,47 @@ OLD_DYLIB=$(find "$WORK/ipa" -name "GameSeagull.dylib" | head -1)
 [ -n "$OLD_DYLIB" ] || { echo "[-] GameSeagull.dylib not found inside IPA (is this a GameSeagull IPA?)"; exit 1; }
 
 # preserve the original install name so existing references keep working
-LC_ID=$(otool -D "$OLD_DYLIB" | tail -n +2 | head -1 | tr -d ' ')
+LC_ID=$(python3 - "$OLD_DYLIB" <<'EOF'
+import struct, sys
+data = open(sys.argv[1], 'rb').read()
+magic, cputype, cpusub, filetype, ncmds = struct.unpack_from('<IIIII', data, 0)
+off = 32
+for _ in range(ncmds):
+    cmd, cmdsize = struct.unpack_from('<II', data, off)
+    if cmd == 0xd:  # LC_ID_DYLIB
+        name_off = struct.unpack_from('<I', data, off + 8)[0]
+        end = data.find(b'\x00', off + name_off)
+        print(data[off + name_off:end].decode())
+        break
+    off += cmdsize
+EOF
+)
 echo "[+] swapping in $NEW_DYLIB (install name: $LC_ID)"
 cp -f "$NEW_DYLIB" "$OLD_DYLIB"
 if [ -n "$LC_ID" ]; then
-	install_name_tool -id "$LC_ID" "$OLD_DYLIB" || true
+	# rewrite LC_ID_DYLIB in place (null-padded) when the new name fits; harmless to skip otherwise
+	python3 - "$OLD_DYLIB" "$LC_ID" <<'EOF'
+import struct, sys
+path, want = sys.argv[1], sys.argv[2].encode()
+data = bytearray(open(path, 'rb').read())
+magic, cputype, cpusub, filetype, ncmds = struct.unpack_from('<IIIII', data, 0)
+off = 32
+for _ in range(ncmds):
+    cmd, cmdsize = struct.unpack_from('<II', data, off)
+    if cmd == 0xd:  # LC_ID_DYLIB
+        name_off = struct.unpack_from('<I', data, off + 8)[0]
+        end = data.find(b'\x00', off + name_off)
+        old = data[off + name_off:end]
+        if len(want) <= len(old):
+            data[off + name_off:off + name_off + len(want)] = want
+            data[off + name_off + len(want):end] = b'\x00' * (len(old) - len(want))
+            open(path, 'wb').write(bytes(data))
+            print(f'[+] install name patched in place')
+        else:
+            print(f'[!] new install name longer than old; leaving as-is')
+        break
+    off += cmdsize
+EOF
 fi
 
 # fresh ad-hoc signature (TrollStore re-signs anyway)

@@ -7,24 +7,31 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Install build dependencies
         run: |
-          brew install ldid dpkg
+          sudo apt-get update
+          sudo apt-get install -y make git curl unzip zip xz-utils
+          sudo curl -fsSL -o /usr/local/bin/ldid https://github.com/ProcursusTeam/ldid/releases/latest/download/ldid_linux_x86_64
+          sudo chmod +x /usr/local/bin/ldid
 
-      - name: Setup Theos
+      - name: Setup Theos (Linux)
         run: |
           export THEOS=$HOME/theos
-          git clone --recursive --depth 1 https://github.com/theos/theos.git "$THEOS"
-
-          # one SDK is enough (sparse checkout keeps CI fast)
-          git clone --depth 1 --filter=blob:none --sparse https://github.com/theos/sdks.git "$THEOS/sdks"
+          # pre-fetch just the SDK we need (install-theos skips sdks if present)
+          mkdir -p "$THEOS"
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/theos/sdks.git "$THEOS/sdks" || true
           cd "$THEOS/sdks" && git sparse-checkout set iPhoneOS14.5.sdk && cd -
+          # official installer: fetches theos + Linux iOS toolchain + ldid
+          bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          find "$THEOS/lib" -maxdepth 1 -name "*.framework" || true
 
-          # Cephei (tweak + prefs link it)
+      - name: Install Cephei
+        run: |
+          export THEOS=$HOME/theos
           curl -sL https://api.github.com/repos/hbang/libcephei/releases/latest \
             | grep -Eo 'https://[^"]+\.deb' | head -1 | xargs curl -sL -o /tmp/cephei.deb
           mkdir -p /tmp/cephei && dpkg-deb -x /tmp/cephei.deb /tmp/cephei
@@ -33,7 +40,7 @@ jobs:
           cp -R /tmp/cephei/var/jb/usr/lib/. "$THEOS/lib/" 2>/dev/null || true
           cp -R /tmp/cephei/usr/include/. "$THEOS/include/" 2>/dev/null || true
           cp -R /tmp/cephei/var/jb/usr/include/. "$THEOS/include/" 2>/dev/null || true
-          find "$THEOS/lib" -name "*.framework" -maxdepth 1 || true
+          find "$THEOS/lib" -maxdepth 1 -name "*.framework" || true
 
       - name: Build .deb packages (rootful + rootless)
         run: |
