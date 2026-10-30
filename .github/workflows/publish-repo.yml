@@ -1,0 +1,56 @@
+name: Publish Sileo repo
+
+on:
+  workflow_run:
+    workflows: ["Build GameSeagull"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download latest built packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          if [ -z "$RUN_ID" ] || [ "$RUN_ID" = "null" ]; then
+            RUN_ID=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "Build GameSeagull" --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          echo "downloading packages from run $RUN_ID"
+          gh run download "$RUN_ID" --repo "$GITHUB_REPOSITORY" -D artifact
+          find artifact -name "*.deb" -exec mv {} . \;
+
+      - name: Publish to gh-pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          URL="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          mkdir pages && cd pages
+          if git ls-remote --exit-code --heads "$URL" gh-pages >/dev/null 2>&1; then
+            git clone --depth 1 --branch gh-pages "$URL" .
+          else
+            git init -b gh-pages
+          fi
+          # keep only the newest version of our package
+          rm -f debs/com.fiore.gameseagull_*.deb
+          mv ../com.fiore.gameseagull_*.deb debs/
+          python3 "$GITHUB_WORKSPACE/.github/scripts/make_repo.py" debs .
+          git add -A
+          if git diff --cached --quiet; then
+            echo "[+] nothing to publish"
+          else
+            VERSION=$(dpkg-deb -f debs/com.fiore.gameseagull_*_iphoneos-arm.deb Version)
+            git commit -m "Publish GameSeagull ${VERSION}"
+            git push "$URL" gh-pages
+            echo "[+] pushed gh-pages"
+          fi
