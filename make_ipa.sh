@@ -30,8 +30,8 @@ echo "[+] unpacking $BASE_IPA..."
 mkdir -p "$WORK/ipa"
 unzip -q "$BASE_IPA" -d "$WORK/ipa"
 
-OLD_DYLIB=$(find "$WORK/ipa" -name "GameSeagull.dylib" | head -1)
-[ -n "$OLD_DYLIB" ] || { echo "[-] GameSeagull.dylib not found inside IPA (is this a GameSeagull IPA?)"; exit 1; }
+OLD_DYLIB=$(find "$WORK/ipa" -iname "gameseagull*.dylib" | head -1)
+[ -n "$OLD_DYLIB" ] || { echo "[-] gameseagull dylib not found inside IPA (is this a GameSeagull IPA?)"; exit 1; }
 
 # preserve the original install name so existing references keep working
 LC_ID=$(python3 - "$OLD_DYLIB" <<'EOF'
