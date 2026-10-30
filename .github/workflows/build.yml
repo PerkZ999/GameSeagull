@@ -21,12 +21,15 @@ jobs:
       - name: Setup Theos (Linux)
         run: |
           export THEOS=$HOME/theos
-          # pre-fetch just the SDK we need (install-theos skips sdks if present)
-          mkdir -p "$THEOS"
-          git clone --depth 1 --filter=blob:none --sparse https://github.com/theos/sdks.git "$THEOS/sdks" || true
+          export CI=true
+          # clone theos FIRST so the installer detects a real install (not just $THEOS existing)
+          git clone --recursive https://github.com/theos/theos.git "$THEOS"
+          # patched SDK: sparse checkout keeps it light; get_sdks() sees iPhoneOS14.5.sdk and skips its own install
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/theos/sdks.git "$THEOS/sdks"
           cd "$THEOS/sdks" && git sparse-checkout set iPhoneOS14.5.sdk && cd -
-          # official installer: fetches theos + Linux iOS toolchain + ldid
+          # installer: adjusts fakeroot, downloads the Linux iOS toolchain, finishes setup
           bash -c "$(curl -fsSL https://raw.githubusercontent.com/theos/theos/master/bin/install-theos)"
+          ls "$THEOS/toolchain/linux/iphone/bin/clang" && echo "[+] toolchain OK"
           find "$THEOS/lib" -maxdepth 1 -name "*.framework" || true
 
       - name: Install Cephei
