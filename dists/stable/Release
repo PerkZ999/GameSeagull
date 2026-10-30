@@ -1,0 +1,23 @@
+Origin: PerkZ999
+Label: GameSeagull Repo
+Suite: stable
+Codename: stable
+Architectures: iphoneos-arm iphoneos-arm64
+Components: main
+Description: GameSeagull - GamePigeon tweaks (prediction lines, find shot & more)
+Date: Fri, 30 Oct 2026 20:59:16 GMT
+MD5Sum:
+ b642041a83a50cd4dce2035e02657f34      574 dists/stable/main/binary-iphoneos-arm/Packages
+ 71efd3ce531b81eb95e583602750ba02      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
+ 7fda75624722fe41df51d9d2583899d1      578 dists/stable/main/binary-iphoneos-arm64/Packages
+ 08a521210365c85d7d8fbf74afbc4e39      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
+SHA1:
+ e152c5cb49a71b5118d4618623a7ebaf8e0d6ad2      574 dists/stable/main/binary-iphoneos-arm/Packages
+ 2dadd6c4767e2818683c7c45b1d2ccde96019244      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
+ e4c9368a377e9fe3d81e6035df81194ec7f2a19e      578 dists/stable/main/binary-iphoneos-arm64/Packages
+ e9b13fb08324752285ab2e605c0f3872cfde1f62      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
+SHA256:
+ 6c78361bce17a7881ee71eae9873ef35efa2e3c0b3ffcad3d6f9ac16eff4a041      574 dists/stable/main/binary-iphoneos-arm/Packages
+ f6636cb46e77d60091fcbde7bbd36bc46ad0f663da328b0d8aaeff166129ef64      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
+ 29d527bc91a523a2e5a026acf1693077844ca0253585fd347813a9ef47505fbc      578 dists/stable/main/binary-iphoneos-arm64/Packages
+ eb427436bc930b3bab3cf8dd28fd4cbe1f19cf50d88c9049fc161205ae0fc5a1      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
