@@ -139,6 +139,29 @@ def main():
     with open(os.path.join(out_root, "dists", SUITE, "Release"), "w") as f:
         f.write(release)
 
+    # ---- flat layout at repo root (what classic Sileo/Cydia sources expect) ----
+    flat_stanza = []
+    for arch, items in entries.items():
+        for t, rel, path, size in items:
+            flat_stanza.append(t.replace("Filename: debs/", "Filename: ./debs/"))
+    flat = "\n".join(flat_stanza) + "\n"
+    with open(os.path.join(out_root, "Packages"), "wb") as f:
+        f.write(flat.encode("utf-8"))
+    with gzip.GzipFile(os.path.join(out_root, "Packages.gz"), "wb", mtime=0) as f:
+        f.write(flat.encode("utf-8"))
+    flat_release = "\n".join([
+        f"Origin: {ORIGIN}",
+        f"Label: {LABEL}",
+        "Suite: stable",
+        "Version: 1.0",
+        "Codename: gameseagull",
+        f"Architectures: {' '.join(archs)}",
+        "Components: main",
+        f"Description: {DESCRIPTION}",
+    ]) + "\n"
+    with open(os.path.join(out_root, "Release"), "w") as f:
+        f.write(flat_release)
+
     total = sum(len(v) for v in entries.values())
     print(f"[+] wrote metadata for {total} package(s), arches: {', '.join(archs)}")
     print(f"[+] dists/{SUITE}/Release written")
