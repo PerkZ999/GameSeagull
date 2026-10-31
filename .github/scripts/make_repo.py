@@ -112,9 +112,11 @@ def main():
         packages_files.append(f"dists/{SUITE}/main/binary-{arch}/Packages.gz")
         for t, rel, path, size in items:
             dest = os.path.join(out_root, rel)
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            with open(dest, "wb") as f:
-                f.write(open(path, "rb").read())
+            # skip self-copy when debs_dir IS the repo's debs/ dir (in-place use)
+            if os.path.abspath(path) != os.path.abspath(dest):
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                with open(dest, "wb") as f:
+                    f.write(open(path, "rb").read())
 
     lines = [
         f"Origin: {ORIGIN}",
