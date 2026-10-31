@@ -49,8 +49,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "[+] nothing to publish"
           else
-            VERSION=$(dpkg-deb -f debs/com.fiore.gameseagull_*_iphoneos-arm.deb Version)
-            git commit -m "Publish GameSeagull ${VERSION}"
+            git commit -m "Publish GameSeagull update"
             git push "$URL" gh-pages
             echo "[+] pushed gh-pages"
           fi
