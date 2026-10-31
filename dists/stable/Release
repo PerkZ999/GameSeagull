@@ -5,19 +5,19 @@ Codename: stable
 Architectures: iphoneos-arm iphoneos-arm64
 Components: main
 Description: GameSeagull - GamePigeon tweaks (prediction lines, find shot & more)
-Date: Sat, 31 Oct 2026 19:52:19 GMT
+Date: Sat, 31 Oct 2026 19:56:28 GMT
 MD5Sum:
- 46fd357c6b64934d1cdd9efd4fb9dbc2      574 dists/stable/main/binary-iphoneos-arm/Packages
- 4c5d10393f4d5459e5ff22aa6f8692dc      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
- 2db7b968c83677528d1c8b62b930a6c0      578 dists/stable/main/binary-iphoneos-arm64/Packages
- 48c7c99540c3df942a57ba6476d7864b      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
+ d17f00a7d47a993565ecfab27cfc25a4      574 dists/stable/main/binary-iphoneos-arm/Packages
+ b697212b5e88342eaf186b86a332b812      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
+ 5086a7c0d0c83323f838bec9e5e74606      578 dists/stable/main/binary-iphoneos-arm64/Packages
+ 8f7f99ad8f9cf41b84b987fdbc6ee7fd      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
 SHA1:
- 6622ebdf5b056ff887ec0e3befefd0b1b137df44      574 dists/stable/main/binary-iphoneos-arm/Packages
- 62e8c647c1457d2785f7646fdb230e9af7c2983a      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
- 54a3f36644dbb5c11b00c3a3279b3f1322594bf3      578 dists/stable/main/binary-iphoneos-arm64/Packages
- be54a2d0bfcacf0e5ebaea501afb36f65f316b7a      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
+ 8c4a575fb7f8c0dd3159b76c0c8fff0138eb395a      574 dists/stable/main/binary-iphoneos-arm/Packages
+ 7c8c9e66452543c20b821342a8c637b89ccc3fff      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
+ 9d5ae5eccd1b9c263bba248d6286b52028360786      578 dists/stable/main/binary-iphoneos-arm64/Packages
+ 5d65428550f4bdad07eb92cb60bb95c9e1117038      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
 SHA256:
- 2253e53a030219723502c17dbd533ad0e72217ec26de3b212e64cf428c37e8a0      574 dists/stable/main/binary-iphoneos-arm/Packages
- b808402a2d897389dc4402bf17dc177d5847e2a75808d09db93be16999a6d45b      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
- 75f81494d59c45782a613daa3f0cb49d7c596828194cf382526d4eb64f892b7e      578 dists/stable/main/binary-iphoneos-arm64/Packages
- 472149ebc6c3e4ea9794a867362f96ff58db4a4cfcad7fd3e54fe58904793ac1      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
+ 7b12edf20540c23540d08fb543368c878e4b5ac8c28bedf70f2fa84c1bd53794      574 dists/stable/main/binary-iphoneos-arm/Packages
+ 3c5524b96f5dc8f4969e1edd3a2114b7ee92a7843326cae96436eb9958ee2c5f      342 dists/stable/main/binary-iphoneos-arm/Packages.gz
+ 925d1b6d5443547bce60dbe00bbc3acd388dbe545451e1c2647f7673a3590446      578 dists/stable/main/binary-iphoneos-arm64/Packages
+ a7a37707bc0e0751f33632e5ab3559e4e6f6950dd29de53c18f58f1d9fd41cad      343 dists/stable/main/binary-iphoneos-arm64/Packages.gz
